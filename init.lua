@@ -362,6 +362,15 @@ do
     },
   }
 
+  -- File tree
+  vim.pack.add { gh 'nvim-tree/nvim-tree.lua' }
+  require('nvim-tree').setup {}
+  vim.keymap.set('n', '<leader>op', require('nvim-tree').toggle, { desc = '[O]pen file tree' })
+
+  -- Git commands
+  vim.pack.add { gh 'tpope/vim-fugitive' }
+  vim.pack.add { gh 'tpope/vim-rhubarb' }
+
   -- Useful plugin to show you pending keybinds.
   vim.pack.add { gh 'folke/which-key.nvim' }
   require('which-key').setup {
@@ -383,18 +392,8 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
-  ---@diagnostic disable-next-line: missing-fields
-  require('tokyonight').setup {
-    styles = {
-      comments = { italic = false }, -- Disable italics in comments
-    },
-  }
-
-  -- Load the colorscheme here.
-  -- Like many other themes, this one has different styles, and you could load
-  -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  vim.pack.add { gh 'shaunsingh/nord.nvim' }
+  vim.cmd.colorscheme 'nord'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -485,15 +484,14 @@ do
 
   -- See `:help telescope` and `:help telescope.setup()`
   require('telescope').setup {
-    -- You can put your default mappings / updates / etc. in here
-    --  All the info you're looking for is in `:help telescope.setup()`
-    --
-    -- defaults = {
-    --   mappings = {
-    --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-    --   },
-    -- },
-    -- pickers = {}
+    defaults = {
+      mappings = {
+        i = {
+          ['<C-j>'] = 'move_selection_next',
+          ['<C-k>'] = 'move_selection_previous',
+        },
+      },
+    },
     extensions = {
       ['ui-select'] = { require('telescope.themes').get_dropdown() },
     },
@@ -548,6 +546,14 @@ do
       -- Useful when you're not sure what type a variable is and you want to see
       -- the definition of its *type*, not where it was *defined*.
       vim.keymap.set('n', 'grt', builtin.lsp_type_definitions, { buffer = buf, desc = '[G]oto [T]ype Definition' })
+
+      -- Aliases matching original personal keymaps
+      vim.keymap.set('n', '<leader>cd', builtin.lsp_definitions, { buffer = buf, desc = '[C]ode [D]efinition' })
+      vim.keymap.set('n', '<leader>cD', builtin.lsp_references, { buffer = buf, desc = '[C]ode [R]eferences' })
+      vim.keymap.set('n', '<leader>ci', builtin.lsp_implementations, { buffer = buf, desc = '[C]ode [I]mplementation' })
+      vim.keymap.set('n', '<leader>ct', builtin.lsp_type_definitions, { buffer = buf, desc = '[C]ode [T]ype definition' })
+      vim.keymap.set('n', '<leader>ds', builtin.lsp_document_symbols, { buffer = buf, desc = '[D]ocument [S]ymbols' })
+      vim.keymap.set('n', '<leader>ws', builtin.lsp_dynamic_workspace_symbols, { buffer = buf, desc = '[W]orkspace [S]ymbols' })
     end,
   })
 
@@ -576,6 +582,11 @@ do
 
   -- Shortcut for searching your Neovim configuration files
   vim.keymap.set('n', '<leader>sn', function() builtin.find_files { cwd = vim.fn.stdpath 'config' } end, { desc = '[S]earch [N]eovim files' })
+
+  -- Extra keymaps from personal config
+  vim.keymap.set('n', '<leader>?', builtin.oldfiles, { desc = '[?] Find recently opened files' })
+  vim.keymap.set('n', '<leader><space>', builtin.find_files, { desc = '[ ] Find files' })
+  vim.keymap.set('n', '<leader>bb', builtin.buffers, { desc = '[B]uffer [B]rowse' })
 end
 
 -- ============================================================
@@ -686,16 +697,14 @@ do
   --  See `:help lsp-config` for information about keys and how to configure
   ---@type table<string, vim.lsp.Config>
   local servers = {
-    -- clangd = {},
-    -- gopls = {},
-    -- pyright = {},
-    -- rust_analyzer = {},
+    clangd = {},
+    gopls = {},
+    pyright = {},
+    rust_analyzer = {},
+    ts_ls = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
     --    https://github.com/pmizio/typescript-tools.nvim
-    --
-    -- But for many setups, the LSP (`ts_ls`) will work just fine
-    -- ts_ls = {},
 
     stylua = {}, -- Used to format Lua code
 
@@ -847,6 +856,8 @@ do
       --
       -- See `:help blink-cmp-config-keymap` for defining your own keymap
       preset = 'default',
+      ['<C-j>'] = { 'select_next', 'fallback' },
+      ['<C-k>'] = { 'select_prev', 'fallback' },
 
       -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
       --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -973,5 +984,3 @@ do
   -- require 'custom.plugins'
 end
 
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
